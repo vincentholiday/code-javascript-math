@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="myCanvas" width="500" height="500" style="border:1px solid #c3c3c3;">Your browser does not support the canvas element.</canvas>
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+var radius = 180;
+ctx.translate(250, 250);
+
+function polygon(ctx, x, y, radius, sides) {
+  if (sides < 3) return;
+  var theta = Math.PI * 2 / sides;
+  ctx.save();
+  ctx.translate(x, y);
+  // 極座標
+  ctx.moveTo(radius, 0);
+  ctx.beginPath();
+  for (var i = 1; i <= sides; i++) {
+    ctx.lineTo(radius * Math.cos(theta * i), radius * Math.sin(theta * i));
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+}
+
+function draw(ctx, x, y, sides, radius) {
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 2;
+  ctx.font = "16px Arial blue";
+
+  // 外接正多邊形
+  var outter_radius = radius * (1 / Math.cos(Math.PI / sides));
+  polygon(ctx, x, y, outter_radius, sides, 0, 1);
+  // 外接正多邊形面積
+  var outter_base = radius * Math.tan(Math.PI / sides) * 2;
+  var outter_area = sides * (outter_base * radius / 2);
+  outter_area = outter_area.toFixed(3);
+  ctx.fillStyle = "#FF00FF";
+  ctx.fillText("外接正" + sides + "邊形面積: " + outter_area, -240, -230);
+
+  // 畫圓
+  var grd = ctx.createLinearGradient(0, 0, 170, 0);
+  grd.addColorStop(0, "yellow");
+  grd.addColorStop(1, "white");
+  ctx.fillStyle = grd;
+  ctx.strokeStyle = "orange";
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+  ctx.fill();
+  ctx.stroke();
+  // 圓形面積
+  var circle_area = Math.pow(radius, 2) * Math.PI;
+  ctx.fillStyle = "orange";
+  ctx.fillText("圓面積: " + circle_area.toFixed(3), -240, -210);
+
+  // 內接正多邊形
+  ctx.beginPath();
+  ctx.strokeStyle = "green";
+  polygon(ctx, x, y, radius, sides, 0, 1);
+  // 內接正多邊形面積
+  var inner_base = radius * Math.sin(Math.PI / sides) * 2;
+  var inner_height = radius * Math.cos(Math.PI / sides);
+  var inner_area = sides * (inner_base * inner_height / 2);
+  inner_area = inner_area.toFixed(3);
+  ctx.fillStyle = "green";
+  ctx.fillText("內接正" + sides + "邊形面積: " + inner_area, -10, -230);
+
+  // 畫圓心
+  ctx.beginPath();
+  ctx.fillStyle = "black";
+  ctx.arc(x, y, 2, 0, Math.PI * 2, true);
+  ctx.fill();
+}
+
+function setupBackground(){
+  ctx.clearRect(-250, -250, 500, 500);
+  var grd = ctx.createLinearGradient(250, 250, -250, -250);
+  grd.addColorStop(1, "white");
+  grd.addColorStop(0, "cyan");
+  ctx.fillStyle = grd;
+  ctx.fillRect(-250, -250, 500, 500);
+}
+
+var sides = 3;
+setupBackground();  
+draw(ctx, 0, 0, sides++, radius);
+function driver() {
+  setupBackground();  
+  draw(ctx, 0, 0, sides++, radius);
+  if (sides > 20) sides = 3;
+}
+window.setInterval(driver, 600);
+
+
+
+</script>
+</body>
+</html>
